@@ -1,0 +1,16 @@
+TASK 4.2: Khảo sát Bản đồ bộ nhớ
+Dựa vào vị trí khai báo trong mã nguồn, 3 biến được sắp xếp vào các phân vùng như sau:
++ BIKE_MODEL: Thuộc phân vùng .rodata (Read-Only Data / ROM). Đây là một chuỗi hằng số được khai báo với từ khóa const. Giá trị của nó mang tính chỉ đọc (Read-Only), không thay đổi trong suốt vòng đời chương trình nên Trình biên dịch (Linker) sẽ xếp nó vào bộ nhớ Flash để tiết kiệm không gian RAM.
++ total_odometer: Thuộc phân vùng .bss (Block Started by Symbol / RAM). Đây là một biến toàn cục (Global variable) được khởi tạo giá trị ban đầu bằng 0. Theo chuẩn ngôn ngữ C, các biến toàn cục bằng 0 hoặc chưa khởi tạo sẽ được đưa vào vùng .bss trên RAM.
++ current_speed: Thuộc phân vùng Stack (RAM). Đây là một biến cục bộ (Local variable) nằm bên trong hàm main(). Biến này được đẩy (push) vào ngăn xếp Stack khi hàm main khởi chạy và sẽ tự động được giải phóng (pop) khi hàm kết thúc.
+
+TASK 4.3: PHÂN TÍCH HIỆN TƯỢNG CRASH / HARD FAULT
+Khi kích hoạt hàm đệ quy vô hạn crash_simulation(), chương trình sẽ liên tục cấp phát mảng trên Stack mà không bao giờ thu hồi, dẫn đến hiện tượng tràn ngăn xếp (Stack Overflow). Hiện tượng cụ thể trên các môi trường như sau:
++ Khi chạy trên máy tính. Hệ điều hành sẽ chủ động can thiệp, ép buộc tắt chương trình và ném ra lỗi Segmentation fault
++ Khi chạy trên Vi điều khiển thực tế (ARM Cortex-M), CPU sẽ ép CPU nhảy thẳng vào hàm xử lý lỗi HardFault_Handler
+
+TASK 5: TỐI ƯU HÓA DUNG LƯỢNG VỚI LINKER SCRIPT
+Trong tình huống bộ nhớ Flash (ROM) chỉ còn trống 20 KB nhưng RAM còn trống 128 KB,
+Cách 1 (uint16_t trip_history[20000] = {0};) Khi khởi tạo mảng bằng 0, trình biên dịch sẽ xếp mảng này vào phân vùng .bss. Điểm mấu chốt của vùng .bss là không chiếm dung lượng lưu trữ trên bộ nhớ Flash (ROM). Nó chỉ xin cấp phát 40KB bộ nhớ RAM khi hệ thống bắt đầu chạy. Do RAM đang còn trống tới 128KB, lệnh này hoàn toàn hợp lệ và 20KB Flash vẫn an toàn.
+Cách 2 (uint16_t trip_history[20000] = {1, 2, 3};) Khi khởi tạo mảng với giá trị khác 0 (như {1, 2, 3}), mảng sẽ bị đẩy vào phân vùng .data. Phân vùng này bắt buộc phải ghi cứng dữ liệu khởi tạo vào bộ nhớ Flash để lưu trữ lâu dài. Việc cố gắng ghi 40KB mảng này vào phần Flash chỉ còn trống 20KB sẽ ngay lập tức gây ra lỗi tràn bộ nhớ chương trình (ROM Overflow), dẫn đến biên dịch thất bại.
+Qua đó, ta thấy cách 1 xài RAM (đang dư dả), cách 2 bào Flash (đã cạn kiệt). Do đó, Cách 1 là con đường duy nhất để chương trình chạy được.
