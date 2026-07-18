@@ -1,0 +1,42 @@
+TASK 1: TỔNG QUAN CÔNG CỤ & LUỒNG LÀM VIỆC
+
+1.1. Công dụng chính của các công cụ:
+- CMake: Đọc cấu hình từ CMakeLists.txt và sinh ra các file cấu hình build cho công cụ thực thi (ở đây là sinh kịch bản cho Ninja)[cite: 16].
+- Ninja: Là công cụ build thực thi, làm nhiệm vụ chạy các lệnh biên dịch một cách song song và tăng dần[cite: 16].
+- Compiler (arm-none-eabi-gcc): Đóng vai trò trình biên dịch chéo, chuyên dịch các file mã nguồn (.c, .s) thành mã máy tương thích với kiến trúc ARM Cortex-M3[cite: 16].
+- STM32_Programmer_CLI: Là công cụ dòng lệnh giao tiếp với mạch nạp ST-Link/SWD, dùng để ghi file firmware nhị phân (.bin) vào bộ nhớ flash của vi điều khiển tại địa chỉ 0x08000000 rồi reset chip[cite: 16].
+
+1.2. Trình tự logic của Toolchain:
+(1) CMake (Chạy trước): Đọc cấu hình và sinh ra kịch bản build.ninja[cite: 16]. Kết quả này làm đầu vào cho Ninja[cite: 16].
+(2) Ninja (Chạy thứ 2): Đọc kịch bản build.ninja và lên lịch gọi trình biên dịch[cite: 16].
+(3) Compiler & Linker (Chạy thứ 3): Trình biên dịch dịch code ra các file đối tượng (.o)[cite: 16]. Tiếp đó, Linker ghép các file .o này lại để tạo thành file .elf và trích xuất ra file .bin[cite: 16].
+(4) STM32_Programmer_CLI (Chạy cuối cùng): Lấy file .bin do chuỗi biên dịch sinh ra và nạp trực tiếp xuống phần cứng[cite: 16].
+
+TASK 2: BẢN CHẤT LUỒNG BIÊN DỊCH & TỐI ƯU HÓA
+
+2.1. Vai trò của Linker và sự khác biệt của file .bin:
+- Không thể nạp ngay file .o vì mỗi file .c được biên dịch độc lập thành một file .o chứa mã máy chưa biết địa chỉ tuyệt đối[cite: 16]. Hàm gọi tới hàm ở file khác tạm để ô trống kèm ghi chú "relocation"[cite: 16]. Linker đóng vai trò ghép mọi file .o, giải quyết các lời gọi hàm và gán địa chỉ vật lý tuyệt đối dựa theo linker script[cite: 16].
+- Điểm khác biệt cốt lõi: File .o chứa bảng symbol và thông tin relocation[cite: 16]. File .bin là bản rút gọn chỉ chứa byte nhị phân thuần túy, hoàn toàn không mang thông tin địa chỉ hay debug[cite: 16].
+
+2.2. Cơ chế Build tăng dần của Ninja:
+- Tiết kiệm thời gian: Khi có thay đổi, Ninja sẽ không dịch lại toàn bộ dự án mà chỉ biên dịch lại duy nhất những file có sự thay đổi (và thực hiện bước link), giúp quá trình này diễn ra gần như tức thì[cite: 16].
+- Cơ chế nhận diện: Ninja dựa vào đồ thị phụ thuộc và lưu dấu thời gian[cite: 16]. Chỉ file nào (hoặc header mà nó phụ thuộc vào) bị thay đổi thời gian chỉnh sửa mới được hệ thống dịch lại[cite: 16].
+
+
+TASK 3: BẢN ĐỒ BỘ NHỚ & LINKER SCRIPT
+
+3.1. Phân biệt LMA và VMA của vùng .data:
+- LMA (Load Memory Address): Là địa chỉ tải nằm trong bộ nhớ FLASH[cite: 16]. Các biến toàn cục có giá trị khởi tạo bắt buộc phải được lưu bền giá trị nằm trong FLASH để không mất dữ liệu khi ngắt điện[cite: 16].
+- VMA (Virtual/Runtime Memory Address): Là địa chỉ chạy nằm ở RAM[cite: 16]. Biến cần ghi (thay đổi giá trị) được lúc chương trình đang chạy nên phải sống trong RAM[cite: 16].
+=> Vùng .data cần cả hai địa chỉ vì nó có địa chỉ tải ở FLASH nhưng địa chỉ thực thi lại nằm ở RAM[cite: 16].
+
+3.2. Nếu Startup Code (Reset_Handler) quên sao chép dữ liệu:
+Ngay sau khi reset, Reset_Handler có nhiệm vụ chép khối dữ liệu của vùng .data từ FLASH sang RAM[cite: 16]. Nếu quên thực hiện bước này, các biến toàn cục có giá trị khởi tạo sẽ không có giá trị đúng trong RAM (thường là rác), khiến logic chương trình hoạt động sai lệch ngay từ đầu.
+
+TASK 4: KHAI BÁO CÁC CÂU LỆNH ĐIỀU KHIỂN HỆ THỐNG
+
+4.1. Câu lệnh CMake cấu hình dự án:
+cmake -B build -G Ninja
+
+4.2. Câu lệnh Ninja biên dịch dự án:
+ninja -C build
