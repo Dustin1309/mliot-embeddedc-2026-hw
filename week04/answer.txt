@@ -1,0 +1,18 @@
+TASK 1: BẢN CHẤT CÁC CHẾ ĐỘ GPIO
+
+1.1. Hoạt động của cặp Transistor PMOS/NMOS ở chế độ Push-Pull:
+- Khi cấu hình chân ở mức logic 1 (3.3V): Transistor PMOS dẫn điện, NMOS ngắt, qua đó dòng điện được "đẩy" ra ngoài[cite: 2].
+- Khi cấu hình chân ở mức logic 0 (0V): Transistor PMOS ngắt, NMOS dẫn điện, qua đó dòng điện được "kéo" xuống GND[cite: 2].
+
+1.2. Chế độ Input Pull-up và hiện tượng Floating:
+- Ta cần cấu hình một chân GPIO ở chế độ Input Pull-up khi giao tiếp với nút nhấn hoặc các mạch hở. Trở kéo lên sẽ giữ điện áp tại chân đó luôn ổn định ở mức logic 1 khi nút chưa bị tác động.
+- Nếu một chân cấu hình là Input nhưng để ở trạng thái Floating (không trở kéo) và không kết nối vào đâu, giá trị đọc về tại thanh ghi dữ liệu đầu vào (IDR) sẽ nhảy hỗn loạn giữa 0 và 1, hoàn toàn không kiểm soát được do bị nhiễu điện từ trường[cite: 2].
+
+TASK 2: TẦM QUAN TRỌNG CỦA XUNG NHỊP (CLOCK)
+
+- Lý do nhà sản xuất mặc định tắt Clock: Khác với các dòng 8-bit cấp xung tĩnh, vi điều khiển ARM 32-bit có tốc độ xung nhịp cực cao (lên đến 72MHz) và số lượng ngoại vi tích hợp bên trong rất lớn[cite: 2]. Nếu cấp xung liên tục cho toàn bộ hệ thống, vi điều khiển sẽ tiêu tốn một lượng điện năng khổng lồ một cách vô ích và sinh nhiệt cao[cite: 2]. Do đó, việc ngắt xung nhịp (đưa ngoại vi vào trạng thái "ngủ") giúp tiết kiệm điện tối đa, rất phù hợp cho thiết bị IoT chạy pin[cite: 2].
+- Nếu cấu hình thanh ghi mà quên bật Clock: Khối ngoại vi đó sẽ hoàn toàn không hoạt động[cite: 2].
+
+TASK 5: LINK DEMO VIDEO MA TRẬN PHÍM 2x2
+Link Video: https://drive.google.com/drive/folders/1v4xbOuY8T20Ds5BUldcOTImqD0-HCAYi?usp=drive_link
+GHI CHÚ: Em chọn thiết kế LED phản hồi cho Task 5 theo Cách 2 (Điều khiển qua Firmware).
