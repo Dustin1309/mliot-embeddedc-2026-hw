@@ -1,8 +1,0 @@
-{
-	"InstallScripts" : 
-	[
-		"C:/Users/Dung Dinh/OneDrive/Desktop/MLIOT Embedded C/mliot-embeddedc-2026-hw/build/cmake_install.cmake",
-		"C:/Users/Dung Dinh/OneDrive/Desktop/MLIOT Embedded C/mliot-embeddedc-2026-hw/build/cmake/stm32cubemx/cmake_install.cmake"
-	],
-	"Parallel" : false
-}
