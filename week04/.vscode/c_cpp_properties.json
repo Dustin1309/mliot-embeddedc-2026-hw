@@ -4,10 +4,10 @@
             "name": "Win32",
             "includePath": [
                 "${workspaceFolder}/**",
-                "${workspaceFolder}/week04/Task 4/Core/Inc",
-                "${workspaceFolder}/week04/Task 4/Drivers/STM32F1xx_HAL_Driver/Inc",
-                "${workspaceFolder}/week04/Task 4/Drivers/CMSIS/Device/ST/STM32F1xx/Include",
-                "${workspaceFolder}/week04/Task 4/Drivers/CMSIS/Include"
+                "${workspaceFolder}/Core/Inc",
+                "${workspaceFolder}/Drivers/STM32F1xx_HAL_Driver/Inc",
+                "${workspaceFolder}/Drivers/CMSIS/Device/ST/STM32F1xx/Include",
+                "${workspaceFolder}/Drivers/CMSIS/Include"
             ],
             "defines": [
                 "_DEBUG",
