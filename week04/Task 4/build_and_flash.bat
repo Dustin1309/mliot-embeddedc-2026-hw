@@ -1,12 +1,16 @@
 @echo off
 setlocal
 
+set PROJECT_NAME=Learning_Startup
+set STLINK_SN=51FF71068370525728270967
+
 echo ===============================================
-echo Building STM32F103 AHT20 Baremetal Project
+echo Building %PROJECT_NAME% Project
 echo ===============================================
 
 REM Change to project directory
-cd /d C:\embedded\STM32_PROJECT\Classic_with_CMake\full_baremetal
+cd /d "%~dp0"
+
 
 REM Clean build directory (using batch commands, not PowerShell)
 if exist build (
@@ -57,7 +61,7 @@ echo ===============================================
 echo Build completed successfully!
 echo.
 
-STM32_Programmer_CLI -c port=SWD sn= 37FF71064E5734362C5E1143 -w build/stm32f103_aht20_baremetal.bin 0x08000000 -v -rst
+STM32_Programmer_CLI -c port=SWD sn=37FF71064E5734362C5E1143 -w build/%PROJECT_NAME%.bin 0x08000000 -v -rst
 
 pause
 endlocal

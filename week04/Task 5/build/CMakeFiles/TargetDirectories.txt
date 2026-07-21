@@ -1,0 +1,6 @@
+C:/Users/Dung Dinh/OneDrive/Desktop/MLIOT Embedded C/mliot-embeddedc-2026-hw/week04/Task 5/build/CMakeFiles/Learning_Startup.dir
+C:/Users/Dung Dinh/OneDrive/Desktop/MLIOT Embedded C/mliot-embeddedc-2026-hw/week04/Task 5/build/CMakeFiles/edit_cache.dir
+C:/Users/Dung Dinh/OneDrive/Desktop/MLIOT Embedded C/mliot-embeddedc-2026-hw/week04/Task 5/build/CMakeFiles/rebuild_cache.dir
+C:/Users/Dung Dinh/OneDrive/Desktop/MLIOT Embedded C/mliot-embeddedc-2026-hw/week04/Task 5/build/cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir
+C:/Users/Dung Dinh/OneDrive/Desktop/MLIOT Embedded C/mliot-embeddedc-2026-hw/week04/Task 5/build/cmake/stm32cubemx/CMakeFiles/edit_cache.dir
+C:/Users/Dung Dinh/OneDrive/Desktop/MLIOT Embedded C/mliot-embeddedc-2026-hw/week04/Task 5/build/cmake/stm32cubemx/CMakeFiles/rebuild_cache.dir

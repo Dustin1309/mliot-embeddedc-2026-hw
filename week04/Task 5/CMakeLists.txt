@@ -1,7 +1,10 @@
 cmake_minimum_required(VERSION 3.22)
 
 #
-# Baremetal STM32F103 AHT20 I2C/UART Project
+# This file is generated only once,
+# and is not re-generated if converter is called multiple times.
+#
+# User is free to modify the file as much as necessary
 #
 
 # Setup compiler settings
@@ -15,10 +18,12 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 # Set the project name
-set(CMAKE_PROJECT_NAME stm32f103_aht20_baremetal)
+set(CMAKE_PROJECT_NAME Learning_Startup)
 
-# Include toolchain file
-include("cmake/gcc-arm-none-eabi.cmake")
+# Load ARM GCC toolchain before project()
+if(NOT CMAKE_TOOLCHAIN_FILE)
+    include("cmake/gcc-arm-none-eabi.cmake")
+endif()
 
 # Enable compile command to ease indexing with e.g. clangd
 set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
@@ -33,74 +38,43 @@ enable_language(C ASM)
 # Create an executable object type
 add_executable(${CMAKE_PROJECT_NAME})
 
-# Baremetal project defines
-set(BAREMETAL_Defines_Syms 
-    STM32F103xB
-    USE_FULL_ASSERT
-    HSI_VALUE=8000000
-    $<$<CONFIG:Debug>:DEBUG>
-)
+# Add STM32CubeMX generated sources
+add_subdirectory(cmake/stm32cubemx)
 
-# Baremetal include paths (only need current directory)
-set(BAREMETAL_Include_Dirs
-    ${CMAKE_SOURCE_DIR}
+# Link directories setup
+target_link_directories(${CMAKE_PROJECT_NAME} PRIVATE
+    # Add user defined library search paths
 )
-
-# Baremetal application sources
-set(BAREMETAL_Application_Src
-    ${CMAKE_SOURCE_DIR}/main.c
-    ${CMAKE_SOURCE_DIR}/i2c_handler.c
-    ${CMAKE_SOURCE_DIR}/uart_handler.c
-    ${CMAKE_SOURCE_DIR}/startup_stm32f103xb.s
-    ${CMAKE_SOURCE_DIR}/system_stm32f1xx.c
-)
-file(GLOB_RECURSE HAL_SOURCES "Drivers/STM32F1xx_HAL_Driver/Src/*.c")
 
 # Add sources to executable
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE
-    main.c
-    system_stm32f1xx.c
-    startup_stm32f103xb.s
-    # --- Điền đích danh các file HAL .c vào đây ---
-    stm32f1xx_hal.c
-    stm32f1xx_hal_gpio.c
-    stm32f1xx_hal_rcc.c
-    stm32f1xx_hal_cortex.c
-    # (Thêm stm32f1xx_hal_i2c.c hoặc các file khác nếu bạn có dùng)
+    # Add user sources here
 )
 
 # Add include paths
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
-    .
-    Drivers/STM32F1xx_HAL_Driver/Inc
-    Drivers/CMSIS/Device/ST/STM32F1xx/Include
-    Drivers/CMSIS/Include
+    # Add user defined include paths
 )
 
 # Add project symbols (macros)
 target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE
-    ${BAREMETAL_Defines_Syms}
+    # Add user defined symbols
 )
 
-# Post-build commands to generate hex and bin files
-add_custom_command(TARGET ${CMAKE_PROJECT_NAME} POST_BUILD
+# Remove wrong libob.a library dependency when using cpp files
+list(REMOVE_ITEM CMAKE_C_IMPLICIT_LINK_LIBRARIES ob)
+
+# Add linked libraries
+target_link_libraries(${CMAKE_PROJECT_NAME}
+    stm32cubemx
+
+    # Add user defined libraries
+)
+
+# Generate .hex and .bin files after build
+add_custom_command(TARGET ${CMAKE_PROJECT_NAME}
+    POST_BUILD
     COMMAND ${CMAKE_OBJCOPY} -O ihex $<TARGET_FILE:${CMAKE_PROJECT_NAME}> ${CMAKE_PROJECT_NAME}.hex
     COMMAND ${CMAKE_OBJCOPY} -O binary $<TARGET_FILE:${CMAKE_PROJECT_NAME}> ${CMAKE_PROJECT_NAME}.bin
     COMMENT "Building HEX and BIN files"
 )
-
-# Print executable size
-add_custom_command(TARGET ${CMAKE_PROJECT_NAME} POST_BUILD
-    COMMAND ${CMAKE_SIZE} $<TARGET_FILE:${CMAKE_PROJECT_NAME}>
-    COMMENT "Program size:"
-)
-
-# Add the map file to the list of files to be removed with 'clean' target
-set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES 
-    ADDITIONAL_CLEAN_FILES "${CMAKE_PROJECT_NAME}.map;${CMAKE_PROJECT_NAME}.hex;${CMAKE_PROJECT_NAME}.bin"
-)
-
-# Validate that code is compatible with C standard
-if((CMAKE_C_STANDARD LESS 11))
-    message(FATAL_ERROR "Generated code requires C11 or higher")
-endif()
